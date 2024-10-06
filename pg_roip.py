@@ -1,8 +1,21 @@
 import socket
 
+
+def get_ip_address(interface='eth0'):
+    try:
+        # Create a socket to connect to the internet
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        
+        # Use ioctl system call to get the IP address
+        ip_address = socket.gethostbyname(socket.gethostname())
+        
+        return ip_address
+    except Exception as e:
+        return str(e)
+
 # nc -u 192.168.0.140 5060
-localIP = "192.168.0.140"
-localPort = 5060
+localIP = get_ip_address()
+sipPort = 5060
 bufferSize = 1024
 
 # message to send back to the client
@@ -49,35 +62,22 @@ bytesToSend = str.encode(msgFromServer)
 
 UDPServerSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
 
-UDPServerSocket.bind((localIP, localPort))
+UDPServerSocket.bind((localIP, sipPort))
 
 print("UDP server up and listening")
 
 # listen for incoming datagrams
-# while(True):
-#     bytesAddressPair = UDPServerSocket.recvfrom(bufferSize)
-#     message = bytesAddressPair[0]
+while(True):
+    bytesAddressPair = UDPServerSocket.recvfrom(bufferSize)
+    message = bytesAddressPair[0]
 
-#     address = bytesAddressPair[1]
-#     clientMsg = "Message from Client:{}".format(message.decode())
-#     clientIP = "Client IP Address:{}".format(address)
+    address = bytesAddressPair[1]
+    clientMsg = "Message from Client:{}".format(message.decode())
+    clientIP = "Client IP Address:{}".format(address)
 
-#     print(clientMsg)
-#     print(clientIP)
+    print(clientMsg)
+    print(clientIP)
 
-#     UDPServerSocket.sendto(bytesToSend, address)
+    UDPServerSocket.sendto(bytesToSend, address)
 
-def get_ip_address(interface='eth0'):
-    try:
-        # Create a socket to connect to the internet
-        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        
-        # Use ioctl system call to get the IP address
-        ip_address = socket.gethostbyname(socket.gethostname())
-        
-        return ip_address
-    except Exception as e:
-        return str(e)
 
-# Example usage:
-print("Ethernet IP Address:", get_ip_address())
